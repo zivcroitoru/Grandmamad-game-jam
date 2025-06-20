@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic; // Needed for accessing List
 
 public class StressManager : MonoBehaviour
 {
@@ -8,28 +9,19 @@ public class StressManager : MonoBehaviour
     public float maxStress = 100f;
     public float stressRate = 2f;
 
-    public float firstAlarmTime = 30f;
-    public float secondAlarmTime = 60f;
+    public bool isInMamad = false;
 
     public Slider stressBar;
     public TMP_Text stressText;
 
-    public TimerManager timer; // Drag your TimerManager here
-
     void Update()
     {
-        float t = timer.TimePassed;
-
-        // Stress curve
-        if (t > secondAlarmTime)
-            stress += Time.deltaTime * (stressRate * 3f);
-        else if (t > firstAlarmTime)
-            stress += Time.deltaTime * (stressRate * 2f);
-        else
+        if (!isInMamad)
+        {
             stress += Time.deltaTime * stressRate;
+            stress = Mathf.Clamp(stress, 0f, maxStress);
+        }
 
-        // Clamp & UI
-        stress = Mathf.Clamp(stress, 0f, maxStress);
         if (stressBar != null)
             stressBar.value = stress / maxStress;
 
@@ -40,5 +32,17 @@ public class StressManager : MonoBehaviour
         {
             Debug.Log("Game Over! Granny is too stressed!");
         }
+    }
+
+    public void ReduceStressFromItems()
+    {
+        int itemCount = TriggerTest.collectedItems.Count;
+        float reduction = itemCount * 0.1f * maxStress;
+
+        stress -= reduction;
+        stress = Mathf.Clamp(stress, 0f, maxStress);
+
+        Debug.Log($"Reduced stress by {reduction} from {itemCount} items");
+
     }
 }
