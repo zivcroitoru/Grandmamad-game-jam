@@ -1,5 +1,7 @@
 # 🧓 Grandmamad
 
+🎬 [Watch gameplay preview](./Assets/Media/2025-06-20 18-44-09.mp4)
+
 **Grandmamad** is a 3D Unity game where you race to safety as a stylish Israeli grandmother. Collect comfort items and rush to the *Mamad* (shelter) before stress takes over!
 
 This game was created during **JamMamad 2025**, a 30-hour online game jam held on June 20–21, 2025.
