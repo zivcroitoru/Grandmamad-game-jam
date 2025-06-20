@@ -7,7 +7,7 @@ public class MamadTrigger : MonoBehaviour
     public Transform mamadSitPosition;
     public Transform nextStartPoint;
 
-    public TimerManager timerScript;
+    public RoundTimer roundTimer; // ✅ NEW
     public GameObject timerUI;
 
     public Camera mainCamera;
@@ -15,7 +15,7 @@ public class MamadTrigger : MonoBehaviour
     public ScreenFader fader;
     public StressManager stressManager;
 
-    public CollectibleSpawner spawner; // NEW
+    public CollectibleSpawner spawner;
 
     private bool hasTriggered = false;
 
@@ -38,7 +38,9 @@ public class MamadTrigger : MonoBehaviour
 
         // Disable timer and movement
         timerUI.SetActive(false);
-        granny.GetComponent<MonoBehaviour>().enabled = false;
+        var movement = granny.GetComponent<MonoBehaviour>();
+        if (movement != null)
+            movement.enabled = false;
 
         // Camera switch
         mainCamera.gameObject.SetActive(false);
@@ -47,7 +49,7 @@ public class MamadTrigger : MonoBehaviour
         // Sit animation
         granny.GetComponent<Animator>().Play("Sitting");
 
-        // Stress and spawn
+        // Stress and collectibles
         stressManager.isInMamad = true;
         stressManager.ReduceStressFromItems();
         spawner.SpawnCollectedItems();
@@ -64,19 +66,24 @@ public class MamadTrigger : MonoBehaviour
     public void ResetAfterMamad()
     {
         timerUI.SetActive(true);
-        timerScript.ResetTimer(60f);
+        roundTimer.ResetTimer(60f); // ✅ NEW
 
-        granny.GetComponent<MonoBehaviour>().enabled = true;
+        var movement = granny.GetComponent<MonoBehaviour>();
+        if (movement != null)
+            movement.enabled = true;
 
         var resetScript = granny.GetComponent<GrannyResetPosition>();
         if (resetScript != null)
+        {
+            resetScript.SetResetIndex(-1); // Random reset point
             resetScript.ResetGranny();
+        }
 
         granny.GetComponent<Animator>().Play("Idle");
 
         mainCamera.gameObject.SetActive(true);
         mamadCamera.gameObject.SetActive(false);
-
+        hasTriggered = false;
         stressManager.isInMamad = false;
     }
 }

@@ -6,7 +6,7 @@ public class TriggerTest : MonoBehaviour
 {
     public TMP_Text messageText;
     public static List<string> collectedItems = new List<string>();
-
+    public static HashSet<string> usedItems = new HashSet<string>();
 void OnTriggerEnter(Collider other)
 {
     if (other.CompareTag("Collectible"))
