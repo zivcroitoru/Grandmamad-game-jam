@@ -3,18 +3,19 @@ using System.Collections;
 
 public class MamadTrigger : MonoBehaviour
 {
-    public Transform[] spawnPoints; // Assign in Inspector
-    public Transform mamadDisplayZone; // Assign in Inspector
-    public CollectibleDatabase database; // Assign in Inspector
+    public GameObject granny;
+    public Transform mamadSitPosition;
+    public Transform nextStartPoint;
 
-    public GameObject granny; // Reference to player/granny GameObject
-    public Animator grannyAnimator; // Animator with sitting animation
-    public Transform mamadSitPosition; // Target position to place Granny in Mamad
+    public TimerManager timerScript;
+    public GameObject timerUI;
 
     public Camera mainCamera;
     public Camera mamadCamera;
-    public ScreenFader fader; // Assign ScreenFader script
+    public ScreenFader fader;
     public StressManager stressManager;
+
+    public CollectibleSpawner spawner; // NEW
 
     private bool hasTriggered = false;
 
@@ -29,55 +30,53 @@ public class MamadTrigger : MonoBehaviour
 
     IEnumerator EnterMamadCutscene()
     {
-        // Fade to black
         yield return StartCoroutine(fader.FadeOut(0.2f));
 
-        // Teleport granny to Mamad sit position
+        // Move Granny
         granny.transform.position = mamadSitPosition.position;
         granny.transform.rotation = mamadSitPosition.rotation;
 
-        // Switch to mamad camera
+        // Disable timer and movement
+        timerUI.SetActive(false);
+        granny.GetComponent<MonoBehaviour>().enabled = false;
+
+        // Camera switch
         mainCamera.gameObject.SetActive(false);
         mamadCamera.gameObject.SetActive(true);
 
-        // Play sit animation
-        grannyAnimator.Play("Sitting"); // Use the name of your sitting animation
+        // Sit animation
+        granny.GetComponent<Animator>().Play("Sitting");
 
-        // Reduce stress
+        // Stress and spawn
         stressManager.isInMamad = true;
         stressManager.ReduceStressFromItems();
+        spawner.SpawnCollectedItems();
 
-        // Spawn collected items
-        Debug.Log("Starting to spawn collected items... Count: " + TriggerTest.collectedItems.Count);
+        yield return StartCoroutine(fader.FadeIn(0.5f));
+        yield return new WaitForSeconds(5f);
+        yield return StartCoroutine(fader.FadeOut(0.3f));
 
-        for (int i = 0; i < TriggerTest.collectedItems.Count && i < spawnPoints.Length; i++)
-        {
-            string itemName = TriggerTest.collectedItems[i];
-            Debug.Log($"Trying to spawn: \"{itemName}\"");
+        ResetAfterMamad();
 
-            GameObject prefab = database.GetPrefab(itemName);
-            if (prefab != null)
-            {
-                Transform spawnPoint = spawnPoints[i];
-                GameObject instance = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
-                instance.transform.SetParent(mamadDisplayZone, true); // Keep world scale
-                Debug.Log($"Spawned \"{itemName}\" at {spawnPoint.position}");
-            }
-            else
-            {
-                Debug.LogWarning($"No prefab found for \"{itemName}\" in the CollectibleDatabase!");
-            }
-        }
-
-        // Fade back in
         yield return StartCoroutine(fader.FadeIn(0.5f));
     }
 
-    void OnTriggerExit(Collider other)
+    public void ResetAfterMamad()
     {
-        if (other.CompareTag("Player"))
-        {
-            stressManager.isInMamad = false;
-        }
+        timerUI.SetActive(true);
+        timerScript.ResetTimer(60f);
+
+        granny.GetComponent<MonoBehaviour>().enabled = true;
+
+        var resetScript = granny.GetComponent<GrannyResetPosition>();
+        if (resetScript != null)
+            resetScript.ResetGranny();
+
+        granny.GetComponent<Animator>().Play("Idle");
+
+        mainCamera.gameObject.SetActive(true);
+        mamadCamera.gameObject.SetActive(false);
+
+        stressManager.isInMamad = false;
     }
 }

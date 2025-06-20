@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Collections.Generic; // Needed for accessing List
+using System.Collections;
+using System.Collections.Generic;
 
 public class StressManager : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class StressManager : MonoBehaviour
     public Slider stressBar;
     public TMP_Text stressText;
 
+    private Coroutine reduceCoroutine;
+
     void Update()
     {
         if (!isInMamad)
@@ -22,11 +25,7 @@ public class StressManager : MonoBehaviour
             stress = Mathf.Clamp(stress, 0f, maxStress);
         }
 
-        if (stressBar != null)
-            stressBar.value = stress / maxStress;
-
-        if (stressText != null)
-            stressText.text = $"{(stress / maxStress * 100f):0}%";
+        UpdateUI();
 
         if (stress >= maxStress)
         {
@@ -34,15 +33,47 @@ public class StressManager : MonoBehaviour
         }
     }
 
+    void UpdateUI()
+    {
+        if (stressBar != null)
+            stressBar.value = stress / maxStress;
+
+        if (stressText != null)
+            stressText.text = $"{(stress / maxStress * 100f):0}%";
+    }
+
     public void ReduceStressFromItems()
     {
+        if (reduceCoroutine != null)
+            StopCoroutine(reduceCoroutine);
+
+        reduceCoroutine = StartCoroutine(AnimateStressReduction());
+    }
+
+    private IEnumerator AnimateStressReduction()
+    {
+        yield return new WaitForSeconds(1f); // wait before reducing
+
         int itemCount = TriggerTest.collectedItems.Count;
         float reduction = itemCount * 0.1f * maxStress;
+        float targetStress = Mathf.Clamp(stress - reduction, 0f, maxStress);
+        float duration = 1f;
+        float elapsed = 0f;
+        float startStress = stress;
 
-        stress -= reduction;
-        stress = Mathf.Clamp(stress, 0f, maxStress);
+        Debug.Log($"Starting animated stress reduction by {reduction}");
 
-        Debug.Log($"Reduced stress by {reduction} from {itemCount} items");
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            stress = Mathf.Lerp(startStress, targetStress, elapsed / duration);
+            UpdateUI();
+            yield return null;
+        }
 
+        stress = targetStress;
+        UpdateUI();
+
+        Debug.Log($"Stress reduced to {stress}");
     }
 }

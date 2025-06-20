@@ -19,4 +19,9 @@ public class TimerManager : MonoBehaviour
         int seconds = Mathf.FloorToInt(timeLeft % 60f);
         timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
+    public void ResetTimer(float newMaxTime = 60f)
+{
+    timePassed = 0f;
+    maxTime = newMaxTime;
+}
 }
