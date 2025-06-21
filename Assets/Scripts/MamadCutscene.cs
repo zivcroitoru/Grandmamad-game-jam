@@ -1,55 +1,49 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
-public class MamadTrigger : MonoBehaviour
+public class MamadCutscene : MonoBehaviour
 {
     public GameObject granny;
     public Transform mamadSitPosition;
-    public Transform nextStartPoint;
-
-    public RoundTimer roundTimer; // ✅ NEW
     public GameObject timerUI;
-
     public Camera mainCamera;
     public Camera mamadCamera;
     public ScreenFader fader;
     public StressManager stressManager;
-
     public CollectibleSpawner spawner;
+    public RoundTimer roundTimer;
 
-    private bool hasTriggered = false;
-
-    void OnTriggerEnter(Collider other)
+    public void PlayCutscene(Action onComplete)
     {
-        if (other.CompareTag("Player") && !hasTriggered)
-        {
-            hasTriggered = true;
-            StartCoroutine(EnterMamadCutscene());
-        }
+        StartCoroutine(CutsceneRoutine(onComplete));
     }
 
-    IEnumerator EnterMamadCutscene()
+    IEnumerator CutsceneRoutine(Action onComplete)
     {
+        roundTimer.PauseTimer(); // ⏸️ Pause the timer
+
         yield return StartCoroutine(fader.FadeOut(0.2f));
 
-        // Move Granny
+        // Move Granny and disable control
         granny.transform.position = mamadSitPosition.position;
         granny.transform.rotation = mamadSitPosition.rotation;
 
-        // Disable timer and movement
         timerUI.SetActive(false);
-        var movement = granny.GetComponent<MonoBehaviour>();
-        if (movement != null)
-            movement.enabled = false;
 
-        // Camera switch
+        var disabler = granny.GetComponent<GrannyMovementDisabler>();
+        if (disabler != null) disabler.SetEnabled(false);
+
+        // Switch cameras
         mainCamera.gameObject.SetActive(false);
         mamadCamera.gameObject.SetActive(true);
 
-        // Sit animation
-        granny.GetComponent<Animator>().Play("Sitting");
+        // Play sit animation
+        var animator = granny.GetComponent<Animator>();
+        if (animator != null)
+            animator.Play("Sitting");
 
-        // Stress and collectibles
+        // Stress logic and item display
         stressManager.isInMamad = true;
         stressManager.ReduceStressFromItems();
         spawner.SpawnCollectedItems();
@@ -58,32 +52,38 @@ public class MamadTrigger : MonoBehaviour
         yield return new WaitForSeconds(5f);
         yield return StartCoroutine(fader.FadeOut(0.3f));
 
-        ResetAfterMamad();
+        yield return StartCoroutine(ResetScene()); // now with delay
 
         yield return StartCoroutine(fader.FadeIn(0.5f));
+
+        roundTimer.ResumeTimer(); // ▶️ Resume the timer
+
+        onComplete?.Invoke();
     }
 
-    public void ResetAfterMamad()
+    IEnumerator ResetScene()
     {
-        timerUI.SetActive(true);
-        roundTimer.ResetTimer(60f); // ✅ NEW
+        yield return new WaitForSecondsRealtime(0.1f); // short delay for stability
 
-        var movement = granny.GetComponent<MonoBehaviour>();
-        if (movement != null)
-            movement.enabled = true;
+        timerUI.SetActive(true);
+        roundTimer.ResetTimer(60f);
+
+        var disabler = granny.GetComponent<GrannyMovementDisabler>();
+        if (disabler != null) disabler.SetEnabled(true);
 
         var resetScript = granny.GetComponent<GrannyResetPosition>();
         if (resetScript != null)
         {
-            resetScript.SetResetIndex(-1); // Random reset point
+            resetScript.SetResetIndex(-1); // Use random reset point
             resetScript.ResetGranny();
         }
 
-        granny.GetComponent<Animator>().Play("Idle");
+        var animator = granny.GetComponent<Animator>();
+        if (animator != null)
+            animator.Play("Idle");
 
         mainCamera.gameObject.SetActive(true);
         mamadCamera.gameObject.SetActive(false);
-        hasTriggered = false;
         stressManager.isInMamad = false;
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public enum GameOverCause
 {
@@ -12,11 +13,19 @@ public class GameManager : MonoBehaviour
 {
     private const string BestTimeKey = "BestSurvivalTime";
 
-    public RoundTimer roundTimer;
-    public StressManager stressManager;
-
+    [Header("UI References")]
+    public GameObject timerUI;
+    public GameObject stressUI;
     public GameObject gameOverScreen;
     public TMP_Text gameOverText;
+    public CanvasGroup gameOverCanvasGroup;
+
+    [Header("Fade Settings")]
+    public float fadeDuration = 0.5f;
+
+    [Header("Game Systems")]
+    public RoundTimer roundTimer;
+    public StressManager stressManager;
 
     private float startTime;
     private bool isGameOver = false;
@@ -34,9 +43,10 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
-{
-    QuitGame();
-}
+        {
+            QuitGame();
+        }
+
         // Fast forward toggle for debug
         if (Input.GetKeyDown(KeyCode.F))
         {
@@ -57,7 +67,9 @@ public class GameManager : MonoBehaviour
         isGameOver = true;
 
         Time.timeScale = 0f;
-        gameOverScreen.SetActive(true);
+
+        if (timerUI != null) timerUI.SetActive(false);
+        if (stressUI != null) stressUI.SetActive(false);
 
         float survivalTime = Time.time - startTime;
         int minutes = Mathf.FloorToInt(survivalTime / 60f);
@@ -77,37 +89,56 @@ public class GameManager : MonoBehaviour
 
         string reasonText = reason == GameOverCause.Stress
             ? "Granny couldn't take the pressure..."
-            : "She didn't reach the Mamad in time.";
+            : "YOUR TAKING TOO LONG";
 
         string timeText = $"{minutes:00}:{seconds:00}";
         string bestTimeTextValue = $"Best: {bestMin:00}:{bestSec:00}";
 
-        // Build stylized TMP text
-string styledText =
-    "<size=250><b>Game Over</b></size>\n\n" +
-    $"<size=48><i>{reasonText}</i></size>\n\n" +
-    $"<size=150><b>{timeText}</b></size>\n\n" +
-    $"<size=36>{bestTimeTextValue}</size>\n\n";
+        string styledText =
+        "<size=125><b>Game Over</b></size>\n\n" +
+        $"<size=24>{reasonText}</size>\n\n" +
+        $"<size=75><b>{timeText}</b></size>\n\n" +
+        $"<size=32>{bestTimeTextValue}</size>\n\n";
 
-if (isNewRecord)
-    styledText += "<size=36><color=#FFD700>🏆 New Record!</color></size>\n\n";
+    if (isNewRecord)
+        styledText += "<size=18><color=#FFD700>🏆 New Record!</color></size>\n\n";
 
-// ⬇️ Added blank line before this final line
-styledText += "\n<size=32><color=#FFFFFFAA>Press R to Restart  |  Esc to Quit</color></size>";
+    styledText += "\n<size=24><color=#FFFFFFAA>Press R to Restart  |  Esc to Quit</color></size>";
 
 
+        gameOverText.text = styledText;
+
+        StartCoroutine(FadeInGameOverScreen());
     }
-public void QuitGame()
-{
-#if UNITY_EDITOR
-    UnityEditor.EditorApplication.isPlaying = false; // for testing in editor
-#else
-    Application.Quit(); // for builds
-#endif
-}
+
+    IEnumerator FadeInGameOverScreen()
+    {
+        gameOverScreen.SetActive(true);
+        gameOverCanvasGroup.alpha = 0f;
+
+        float t = 0f;
+        while (t < fadeDuration)
+        {
+            t += Time.unscaledDeltaTime;
+            gameOverCanvasGroup.alpha = Mathf.Lerp(0f, 1f, t / fadeDuration);
+            yield return null;
+        }
+
+        gameOverCanvasGroup.alpha = 1f;
+    }
+
     public void RestartGame()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 }
