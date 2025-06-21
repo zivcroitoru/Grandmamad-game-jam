@@ -82,9 +82,12 @@ public class TriggerTest : MonoBehaviour
         Debug.Log("Collected item: " + itemName);
         Debug.Log("Current total: " + collectedItems.Count);
 
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.pickupSFX); // 🔊 Play pickup sound
+
         StartCoroutine(ShowCollectedText(itemName));
         Destroy(obj);
     }
+
 
     IEnumerator ShowCollectedText(string itemName)
     {

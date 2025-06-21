@@ -3,6 +3,12 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Audio")]
+    public AudioSource footstepSource;
+    public AudioClip[] footstepClips;
+    public float footstepInterval = 0.5f;
+    private float footstepTimer = 0f;
+
     [Header("Movement Settings")]
     public float walkSpeed = 2f;
     public float runSpeed = 10f;
@@ -42,7 +48,18 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("Speed", inputMagnitude);
 
         if (inputMagnitude >= 0.1f)
+    {
+        footstepTimer += Time.deltaTime;
+        if (footstepTimer >= footstepInterval)
         {
+            if (footstepClips.Length > 0 && footstepSource != null)
+            {
+                int index = Random.Range(0, footstepClips.Length);
+                footstepSource.PlayOneShot(footstepClips[index]);
+            }
+            footstepTimer = 0f;
+        }
+
             // Camera-relative direction
             Vector3 camForward = cameraTransform.forward;
             Vector3 camRight = cameraTransform.right;
@@ -61,7 +78,10 @@ public class PlayerController : MonoBehaviour
             // Move
             controller.Move(moveDirection * speed * Time.deltaTime);
         }
-
+        else
+        {
+            footstepTimer = 0f; // reset when not moving
+        }
         // Apply gravity
         if (controller.isGrounded && velocity.y < 0)
             velocity.y = -2f;

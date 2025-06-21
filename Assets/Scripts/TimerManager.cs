@@ -3,7 +3,7 @@ using TMPro;
 
 public class RoundTimer : MonoBehaviour
 {
-    public float maxTime = 60f;
+    public float maxTime = 61f;
     public TMP_Text roundTimerText;
     private bool isPaused = false;
 
@@ -28,11 +28,10 @@ public class RoundTimer : MonoBehaviour
     timePassed += Time.deltaTime;
     float timeLeft = Mathf.Max(0f, maxTime - timePassed);
 
-    int minutes = Mathf.FloorToInt(timeLeft / 60f);
-    int seconds = Mathf.FloorToInt(timeLeft % 60f);
+    int seconds = Mathf.FloorToInt(timeLeft % 61f);
 
     if (roundTimerText != null)
-        roundTimerText.text = $"{minutes:00}:{seconds:00}";
+        roundTimerText.text = $"{seconds:00}";
 
     if (timeLeft <= 0f)
     {
@@ -42,7 +41,7 @@ public class RoundTimer : MonoBehaviour
 }
 
 
-    public void ResetTimer(float newMaxTime = 60f)
+    public void ResetTimer(float newMaxTime = 61f)
     {
         maxTime = newMaxTime;
         timePassed = 0f;

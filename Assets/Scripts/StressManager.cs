@@ -55,6 +55,7 @@ public class StressManager : MonoBehaviour
 
 private IEnumerator AnimateStressReduction()
 {
+
     yield return new WaitForSeconds(1f); // wait before reducing
 
     int newItemCount = 0;
@@ -75,6 +76,7 @@ private IEnumerator AnimateStressReduction()
     float startStress = stress;
 
     Debug.Log($"Reducing stress by {reduction} from {newItemCount} new items");
+    AudioManager.Instance.PlayHealSFX(); // 🔊 play healing sound
 
     while (elapsed < duration)
     {
@@ -89,4 +91,5 @@ private IEnumerator AnimateStressReduction()
 
     Debug.Log($"Stress reduced to {stress}");
 }
+
 }

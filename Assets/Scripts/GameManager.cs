@@ -38,6 +38,9 @@ public class GameManager : MonoBehaviour
         // Hook into events
         roundTimer.OnTimeOutEvent += () => TriggerGameOver(GameOverCause.Timeout);
         stressManager.OnStressMaxed += () => TriggerGameOver(GameOverCause.Stress);
+
+        // Start background music
+        AudioManager.Instance.PlayRoundMusic();
     }
 
     void Update()
@@ -71,6 +74,12 @@ public class GameManager : MonoBehaviour
         if (timerUI != null) timerUI.SetActive(false);
         if (stressUI != null) stressUI.SetActive(false);
 
+        // Stop background music
+        AudioManager.Instance.StopMusic();
+
+        // Play game over SFX
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.gameOverSFX);
+
         float survivalTime = Time.time - startTime;
         int minutes = Mathf.FloorToInt(survivalTime / 60f);
         int seconds = Mathf.FloorToInt(survivalTime % 60f);
@@ -89,22 +98,21 @@ public class GameManager : MonoBehaviour
 
         string reasonText = reason == GameOverCause.Stress
             ? "Granny couldn't take the pressure..."
-            : "YOUR TAKING TOO LONG";
+            : "You're taking too long!";
 
         string timeText = $"{minutes:00}:{seconds:00}";
         string bestTimeTextValue = $"Best: {bestMin:00}:{bestSec:00}";
 
         string styledText =
-        "<size=125><b>Game Over</b></size>\n\n" +
-        $"<size=24>{reasonText}</size>\n\n" +
-        $"<size=75><b>{timeText}</b></size>\n\n" +
-        $"<size=32>{bestTimeTextValue}</size>\n\n";
+            "<size=125><b>Game Over</b></size>\n\n" +
+            $"<size=24>{reasonText}</size>\n\n" +
+            $"<size=75><b>{timeText}</b></size>\n\n" +
+            $"<size=32>{bestTimeTextValue}</size>\n\n";
 
-    if (isNewRecord)
-        styledText += "<size=18><color=#FFD700>🏆 New Record!</color></size>\n\n";
+        if (isNewRecord)
+            styledText += "<size=24><color=#FFD700><b>🏆 New Record!</b></color></size>\n\n";
 
-    styledText += "\n<size=24><color=#FFFFFFAA>Press R to Restart  |  Esc to Quit</color></size>";
-
+        styledText += "\n<size=24><color=#FFFFFFAA>Press R to Restart  |  Q to Quit</color></size>";
 
         gameOverText.text = styledText;
 
@@ -129,16 +137,14 @@ public class GameManager : MonoBehaviour
 
     public void RestartGame()
     {
+        TriggerTest.collectedItems.Clear();
+        TriggerTest.usedItems.Clear();
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void QuitGame()
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
         Application.Quit();
-#endif
     }
 }

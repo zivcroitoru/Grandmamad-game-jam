@@ -24,6 +24,9 @@ public class MamadCutscene : MonoBehaviour
         roundTimer.PauseTimer(); // ⏸️ Pause the timer
 
         yield return StartCoroutine(fader.FadeOut(0.2f));
+        AudioManager.Instance.StopMusic();
+
+        AudioManager.Instance.PlayMamadMusic(); // 🔊 Mamad background music
 
         // Move Granny and disable control
         granny.transform.position = mamadSitPosition.position;
@@ -49,8 +52,8 @@ public class MamadCutscene : MonoBehaviour
         spawner.SpawnCollectedItems();
 
         yield return StartCoroutine(fader.FadeIn(0.5f));
-        yield return new WaitForSeconds(5f);
-        yield return StartCoroutine(fader.FadeOut(0.3f));
+        yield return new WaitForSeconds(7f);
+        yield return StartCoroutine(fader.FadeOut(0.5f));
 
         yield return StartCoroutine(ResetScene()); // now with delay
 
@@ -85,5 +88,6 @@ public class MamadCutscene : MonoBehaviour
         mainCamera.gameObject.SetActive(true);
         mamadCamera.gameObject.SetActive(false);
         stressManager.isInMamad = false;
+        AudioManager.Instance.PlayRoundMusic();
     }
 }
