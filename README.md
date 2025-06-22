@@ -1,6 +1,6 @@
 # 🧓 Grandmamad
 
-🎬 [![Watch gameplay preview](preview/video-thumbnail.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+🎬 [![Watch gameplay preview](Previews/video-thumbnail.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
 
 **Grandmamad** is a 3D Unity game where you race to safety as a stylish Israeli grandmother. Collect comfort items and rush to the *Mamad* (shelter) before stress takes over!
 
@@ -14,12 +14,12 @@ The jam's theme was **“Safe Zone”**, inviting participants to explore what s
 
 <table>
   <tr>
-    <td><img src="preview/3.jpg" width="300"/></td>
-    <td><img src="preview/5.jpg" width="300"/></td>
+    <td><img src="Previews/3.jpg" width="300"/></td>
+    <td><img src="Previews/5.jpg" width="300"/></td>
   </tr>
   <tr>
-    <td><img src="preview/6.jpg" width="300"/></td>
-    <td><img src="preview/9.jpg" width="300"/></td>
+    <td><img src="Previews/6.jpg" width="300"/></td>
+    <td><img src="Previews/9.jpg" width="300"/></td>
   </tr>
 </table>
 
