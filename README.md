@@ -1,8 +1,9 @@
 # 🧓 Grandmamad
 
-👉 **Play now on Itch.io (WebGL)**: [https://thefanic.itch.io/grandmamad](https://thefanic.itch.io/grandmamad)
+👉 **Play now on Itch.io (WebGL) Mobile/PC **: [https://thefanic.itch.io/grandmamad](https://thefanic.itch.io/grandmamad)
 
-🎬 Watch gameplay preview:  
+🎬 Watch gameplay preview:
+
 [![Watch gameplay preview](Previews/SCREEN1.jpg)](https://www.youtube.com/watch?v=8E2LB8CPeDo)
 
 **Grandmamad** is a 3D Unity game where you race to safety as a stylish Israeli grandmother. Collect comfort items and rush to the *Mamad* (shelter) before stress takes over!
@@ -50,9 +51,3 @@ The jam's theme was **“Safe Zone”**, inviting participants to explore what s
 - 🏆 **Best record saved via PlayerPrefs**
 
 ---
-
-## 🧼 Status
-
-🧪 Prototype / In Development  
-🎮 Built in 30 hours during **JamMamad 2025**  
-🌐 Designed as a modular system for future level expansion  
