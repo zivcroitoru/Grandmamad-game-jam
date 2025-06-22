@@ -1,13 +1,27 @@
 # 🧓 Grandmamad
 
-🎬 [Watch gameplay preview](./Assets/Media/grandmamad-preview.mp4)
-
+🎬 [![Watch gameplay preview](./Assets/Media/video-thumbnail.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
 
 **Grandmamad** is a 3D Unity game where you race to safety as a stylish Israeli grandmother. Collect comfort items and rush to the *Mamad* (shelter) before stress takes over!
 
 This game was created during **JamMamad 2025**, a 30-hour online game jam held on June 20–21, 2025.
 
 The jam's theme was **“Safe Zone”**, inviting participants to explore what safety means — a place, a feeling, or a concept — and express it through gameplay.
+
+---
+
+## 🖼️ Screenshots
+
+<table>
+  <tr>
+    <td><img src="./Assets/Media/3.jpg" width="300"/></td>
+    <td><img src="./Assets/Media/5.jpg" width="300"/></td>
+  </tr>
+  <tr>
+    <td><img src="./Assets/Media/6.jpg" width="300"/></td>
+    <td><img src="./Assets/Media/9.jpg" width="300"/></td>
+  </tr>
+</table>
 
 ---
 
@@ -35,5 +49,3 @@ The jam's theme was **“Safe Zone”**, inviting participants to explore what s
 🧪 Prototype / In Development  
 🎮 Built in 30 hours during **JamMamad 2025**  
 🌐 Designed as a modular system for future level expansion  
-
----
