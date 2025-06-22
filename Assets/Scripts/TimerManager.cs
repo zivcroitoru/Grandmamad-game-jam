@@ -7,8 +7,9 @@ public class RoundTimer : MonoBehaviour
     public TMP_Text roundTimerText;
     private bool isPaused = false;
 
-    private float timePassed = 0f;
+    public float timePassed = 0f;
     private bool timedOut = false;
+public float TimePassed => timePassed;
 
     public System.Action OnTimeOutEvent;
     public void PauseTimer()

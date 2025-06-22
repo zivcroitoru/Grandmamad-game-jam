@@ -27,33 +27,24 @@ public class GameManager : MonoBehaviour
     [Header("Fade Settings")]
     public float fadeDuration = 0.3f;
 
-    private float startRealTime;
     private bool isGameOver = false;
 
-  void Start()
-{
-    startRealTime = 0f;
-    isGameOver = false;
-    
-    gameOverScreen.SetActive(false);
-    AudioManager.Instance.PlayRoundMusic();
+    void Start()
+    {
+        isGameOver = false;
 
-    if (stressManager != null)
-        stressManager.OnStressMaxed += () => GameOver(GameOverCause.Stress);
+        gameOverScreen.SetActive(false);
+        AudioManager.Instance.PlayRoundMusic();
 
-    if (roundTimer != null)
-        roundTimer.OnTimeOutEvent += () => GameOver(GameOverCause.Timeout);
-}
+        if (stressManager != null)
+            stressManager.OnStressMaxed += () => GameOver(GameOverCause.Stress);
+
+        if (roundTimer != null)
+            roundTimer.OnTimeOutEvent += () => GameOver(GameOverCause.Timeout);
+    }
 
     void Update()
     {
-        // Start timing after tutorial ends
-    if (startRealTime == 0f && !TutorialManager.IsTutorialActive)
-    {
-        startRealTime = Time.realtimeSinceStartup;
-        Debug.Log($"[TimerStart] startRealTime set to {startRealTime}");
-    }
-
         // Debug fast-forward toggle
         if (Input.GetKeyDown(KeyCode.F))
         {
@@ -79,66 +70,79 @@ public class GameManager : MonoBehaviour
 
 public void GameOver(GameOverCause cause)
 {
-    if (isGameOver) return; // Prevent double-call
+    if (isGameOver) return;
     isGameOver = true;
 
     roundTimer?.PauseTimer();
 
-    // Store final time
-    float survivalTime = Time.realtimeSinceStartup - startRealTime;
+    // ✅ Use roundTimer timePassed
+    float survivalTime = roundTimer != null ? roundTimer.TimePassed : 0f;
 
     float bestTime = PlayerPrefs.GetFloat(BestTimeKey, 0f);
     bool isNewRecord = survivalTime > bestTime;
+
     if (isNewRecord)
     {
         PlayerPrefs.SetFloat(BestTimeKey, survivalTime);
         PlayerPrefs.Save();
     }
 
+    // ✅ Time formatting
     string reasonText = cause == GameOverCause.Stress
         ? "Granny got too stressed out!"
         : "YOU'RE TAKING TOO LONG";
 
-    string timeText = $"{survivalTime:F1} seconds";
-    string bestTimeTextValue = $"Best Time: {Mathf.Max(survivalTime, bestTime):F1} sec";
+// Format survival time as MM:SS
+int minutes = Mathf.FloorToInt(survivalTime / 60f);
+int seconds = Mathf.FloorToInt(survivalTime % 60f);
+string timeText = $"{minutes:00}:{seconds:00}";
 
-    string styledText =
-        $"<size=94><b>Game Over</b></size>\n\n" +
-        $"<size=18>{reasonText}</size>\n\n" +
-        $"<size=56><b>{timeText}</b></size>\n\n" +
-        $"<size=24>{bestTimeTextValue}</size>\n\n";
+// Format best time as MM:SS
+float finalBestTime = Mathf.Max(survivalTime, bestTime);
+int bestMinutes = Mathf.FloorToInt(finalBestTime / 60f);
+int bestSeconds = Mathf.FloorToInt(finalBestTime % 60f);
+string bestTimeText = $"Best Time: {bestMinutes:00}:{bestSeconds:00}";
+
+
+  string styledText =
+    "<size=94><b>Game Over</b></size>\n\n" +
+    $"<size=22>{reasonText}</size>\n\n" +
+    $"<size=56><b>{timeText}</b></size>\n" +
+    $"<size=24>{bestTimeText}</size>\n";
+
 
     if (isNewRecord)
         styledText += "<size=18><color=#FFD700><b>🏆 New Record!</b></color></size>\n\n";
 
     styledText += Application.isMobilePlatform
-        ? "\n<size=18><color=#FFFFFFAA>Tap the screen to restart</color></size>"
-        : "\n<size=18><color=#FFFFFFAA>Press R to Restart  |  Q to Quit</color></size>";
+        ? "<size=18><color=#FFFFFFAA>Tap the screen to restart</color></size>"
+        : "<size=18><color=#FFFFFFAA>Press R to Restart  |  Q to Quit</color></size>";
 
+    // ✅ Set and update TMP text
     gameOverText.text = styledText;
+    gameOverText.ForceMeshUpdate();
 
     StartCoroutine(ShowGameOverUI());
 }
 
-IEnumerator ShowGameOverUI()
-{
-    // ✅ Hide all gameplay UI
-    if (gameplayUI != null)
-        gameplayUI.SetActive(false);
 
-    gameOverScreen.SetActive(true);
-
-    // 🔊 Play SFX
-    if (AudioManager.Instance != null)
+    IEnumerator ShowGameOverUI()
     {
-        AudioManager.Instance.PlayGameOverSFX();
+        // ✅ Hide all gameplay UI
+        if (gameplayUI != null)
+            gameplayUI.SetActive(false);
+
+        gameOverScreen.SetActive(true);
+
+        // 🔊 Play SFX
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayGameOverSFX();
+        }
+
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        // 🛑 Freeze the game
+        Time.timeScale = 0f;
     }
-
-    yield return new WaitForSecondsRealtime(0.5f);
-
-    // 🛑 Freeze the game
-    Time.timeScale = 0f;
-}
-
-
 }

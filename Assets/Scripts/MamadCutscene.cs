@@ -67,9 +67,16 @@ public class MamadCutscene : MonoBehaviour
  IEnumerator ResetScene()
 {
     yield return new WaitForSecondsRealtime(0.1f); // short delay for stability
+roundTimer.ResetTimer(60f);
 
-    timerUI.SetActive(true);
-    roundTimer.ResetTimer(60f);
+if (roundTimer.roundTimerText != null)
+{
+    roundTimer.roundTimerText.text = ((int)roundTimer.maxTime).ToString("00");
+}
+
+timerUI.SetActive(true);
+
+
 
     var disabler = granny.GetComponent<GrannyMovementDisabler>();
     if (disabler != null) disabler.SetEnabled(true);
