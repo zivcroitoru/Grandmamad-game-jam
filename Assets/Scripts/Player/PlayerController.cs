@@ -8,6 +8,9 @@ public class PlayerController : MonoBehaviour
     public AudioClip[] footstepClips;
     public float footstepInterval = 0.5f;
     private float footstepTimer = 0f;
+    public MobileInputManager mobileInput;
+    public bool autoDetectMobile = true;
+    private bool isMobile;
 
     [Header("Movement Settings")]
     public float walkSpeed = 2f;
@@ -32,6 +35,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        if (autoDetectMobile)
+        isMobile = Application.isMobilePlatform;
+
         HandleMovement();
     }
 
@@ -39,8 +45,20 @@ public class PlayerController : MonoBehaviour
     {
         speed = isIndoor ? walkSpeed : runSpeed;
 
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+    float horizontal, vertical;
+
+        if (isMobile && mobileInput != null)
+        {
+            Vector2 input = mobileInput.GetJoystickInput();
+            horizontal = input.x;
+            vertical = input.y;
+        }
+        else
+        {
+            horizontal = Input.GetAxis("Horizontal");
+            vertical = Input.GetAxis("Vertical");
+        }
+
         Vector3 inputDirection = new Vector3(horizontal, 0f, vertical).normalized;
 
         // Update animation parameter

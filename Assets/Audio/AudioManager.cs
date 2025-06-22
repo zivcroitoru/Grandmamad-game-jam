@@ -17,29 +17,30 @@ public class AudioManager : MonoBehaviour
     public AudioClip pickupSFX;
     public AudioClip mamadBGM;
 
-    void Awake()
-    {
-        // Singleton setup
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+void Awake()
+{
+    Debug.Log("AudioManager Awake");
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+    if (Instance != null && Instance != this)
+    {
+        Destroy(gameObject);
+        return;
     }
+
+    Instance = this;
+    DontDestroyOnLoad(gameObject);
+}
 
     void Start()
     {
-        PlayRoundMusic();
+      //  PlayRoundMusic();
     }
 
-    public void PlayMusic(AudioClip clip, bool loop = true)
+    public void PlayMusic(AudioClip clip, bool loop = false)
     {
+            Debug.Log($"PlayMusic called with: {clip?.name}");
         if (clip == null || musicSource == null) return;
         musicSource.clip = clip;
-        musicSource.loop = loop;
         musicSource.Play();
     }
 
@@ -51,6 +52,7 @@ public class AudioManager : MonoBehaviour
 
     public void PlayRoundMusic()
     {
+        StopMusic(); // ← Add this line
         PlayMusic(roundBGM, true);
     }
 
@@ -62,7 +64,7 @@ public class AudioManager : MonoBehaviour
 
     public void PlayGameOverSFX()
     {
-        PlaySFX(gameOverSFX);
+        PlayMusic(gameOverSFX, false); // play using the music source
     }
 
     public void PlayPickupSFX()
@@ -77,4 +79,16 @@ public class AudioManager : MonoBehaviour
     {
         PlayMusic(mamadBGM, false);
     }
+    public void PauseMusic()
+{
+    if (musicSource != null && musicSource.isPlaying)
+        musicSource.Pause();
+}
+
+public void ResumeMusic()
+{
+    if (musicSource != null && musicSource.clip != null)
+        musicSource.UnPause();
+}
+
 }

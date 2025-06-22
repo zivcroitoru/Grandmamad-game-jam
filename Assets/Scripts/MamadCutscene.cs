@@ -64,30 +64,37 @@ public class MamadCutscene : MonoBehaviour
         onComplete?.Invoke();
     }
 
-    IEnumerator ResetScene()
+ IEnumerator ResetScene()
+{
+    yield return new WaitForSecondsRealtime(0.1f); // short delay for stability
+
+    timerUI.SetActive(true);
+    roundTimer.ResetTimer(60f);
+
+    var disabler = granny.GetComponent<GrannyMovementDisabler>();
+    if (disabler != null) disabler.SetEnabled(true);
+
+    var animator = granny.GetComponent<Animator>();
+    if (animator != null)
     {
-        yield return new WaitForSecondsRealtime(0.1f); // short delay for stability
-
-        timerUI.SetActive(true);
-        roundTimer.ResetTimer(60f);
-
-        var disabler = granny.GetComponent<GrannyMovementDisabler>();
-        if (disabler != null) disabler.SetEnabled(true);
-
-        var resetScript = granny.GetComponent<GrannyResetPosition>();
-        if (resetScript != null)
-        {
-            resetScript.SetResetIndex(-1); // Use random reset point
-            resetScript.ResetGranny();
-        }
-
-        var animator = granny.GetComponent<Animator>();
-        if (animator != null)
-            animator.Play("Idle");
-
-        mainCamera.gameObject.SetActive(true);
-        mamadCamera.gameObject.SetActive(false);
-        stressManager.isInMamad = false;
-        AudioManager.Instance.PlayRoundMusic();
+        animator.Play("Idle");
+        animator.Update(0f);
     }
+
+    var resetScript = granny.GetComponent<GrannyResetPosition>();
+    if (resetScript != null)
+    {
+        resetScript.SetResetIndex(-1); // Use random reset point
+        resetScript.ResetGranny();
+        Debug.Log($"Granny position after reset: {granny.transform.position}");
+    }
+
+    mainCamera.gameObject.SetActive(true);
+    mamadCamera.gameObject.SetActive(false);
+
+    stressManager.isInMamad = false; // ✅ moved to end
+
+    AudioManager.Instance.PlayRoundMusic();
+}
+
 }

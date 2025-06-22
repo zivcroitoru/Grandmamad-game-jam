@@ -5,19 +5,21 @@ using System.Collections.Generic;
 
 public class TriggerTest : MonoBehaviour
 {
-    public GameObject messagePanel;         // Panel holding the pickup text
-    public TMP_Text messageText;            // Pickup text ("[E]\nItem")
-    public TMP_Text collectedText;          // Text shown after collecting
-    public float interactRange;             // Radius to detect items
-    public KeyCode interactKey = KeyCode.E; // Interaction key
-    public GameObject CLLCTUI;              // Collection UI popup (must have CanvasGroup)
+    public MobileInputManager mobileInput;
+    public bool autoDetectMobile = true;
+    private bool isMobile;
+
+    public TMP_Text pickupButtonText;           // Text inside the pickup button
+    public GameObject pickupButton;             // The button itself
+    public TMP_Text collectedText;              // Text shown after collecting
+    public GameObject CLLCTUI;                  // Popup UI with CanvasGroup
+    public float interactRange;                 // Detection range
+    public KeyCode interactKey = KeyCode.E;     // Key to pick up
 
     public static List<string> collectedItems = new List<string>();
     public static HashSet<string> usedItems = new HashSet<string>();
 
     private GameObject currentTarget;
-    private Coroutine fadeCoroutine;
-    private bool isShowingPrompt = false;
     private CanvasGroup cllctGroup;
 
     void Awake()
@@ -28,9 +30,15 @@ public class TriggerTest : MonoBehaviour
 
     void Update()
     {
-        currentTarget = null;
-        Collider[] hits = Physics.OverlapSphere(transform.position, interactRange);
+        if (autoDetectMobile)
+            isMobile = Application.isMobilePlatform;
 
+        currentTarget = null;
+
+        if (pickupButton != null)
+            pickupButton.SetActive(false);
+
+        Collider[] hits = Physics.OverlapSphere(transform.position, interactRange);
         float closestDot = -1f;
 
         foreach (var hit in hits)
@@ -53,25 +61,17 @@ public class TriggerTest : MonoBehaviour
         if (currentTarget != null)
         {
             string itemName = currentTarget.name.Replace("(Clone)", "").Trim();
-            messageText.text = $"<b>[E]</b> <b>{itemName}</b>";
 
-            if (!isShowingPrompt)
-            {
-                if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-                fadeCoroutine = StartCoroutine(FadeInMessage());
-            }
+            if (pickupButton != null)
+                pickupButton.SetActive(true);
 
-            if (Input.GetKeyDown(interactKey))
+            if (pickupButtonText != null)
+                pickupButtonText.text = $"Pick up {itemName}";
+
+            if ((!isMobile && Input.GetKeyDown(interactKey)) ||
+                (isMobile && mobileInput != null && mobileInput.ConsumePickup()))
             {
                 Collect(currentTarget, itemName);
-            }
-        }
-        else
-        {
-            if (isShowingPrompt)
-            {
-                if (fadeCoroutine != null) StopCoroutine(fadeCoroutine);
-                fadeCoroutine = StartCoroutine(FadeOutMessage());
             }
         }
     }
@@ -80,14 +80,12 @@ public class TriggerTest : MonoBehaviour
     {
         collectedItems.Add(itemName);
         Debug.Log("Collected item: " + itemName);
-        Debug.Log("Current total: " + collectedItems.Count);
 
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.pickupSFX); // 🔊 Play pickup sound
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.pickupSFX);
 
         StartCoroutine(ShowCollectedText(itemName));
         Destroy(obj);
     }
-
 
     IEnumerator ShowCollectedText(string itemName)
     {
@@ -110,50 +108,6 @@ public class TriggerTest : MonoBehaviour
             yield return StartCoroutine(FadeCanvasGroup(cllctGroup, 1f, 0f, 0.3f));
             CLLCTUI.SetActive(false);
         }
-    }
-
-    IEnumerator FadeInMessage()
-    {
-        isShowingPrompt = true;
-        messagePanel.SetActive(true);
-
-        Color color = messageText.color;
-        color.a = 0f;
-        messageText.color = color;
-
-        float duration = 0.3f;
-        float t = 0f;
-
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            float alpha = Mathf.Lerp(0f, 1f, t / duration);
-            color.a = alpha;
-            messageText.color = color;
-            yield return null;
-        }
-
-        color.a = 1f;
-        messageText.color = color;
-    }
-
-    IEnumerator FadeOutMessage()
-    {
-        isShowingPrompt = false;
-        Color color = messageText.color;
-        float duration = 0.3f;
-        float t = 0f;
-
-        while (t < duration)
-        {
-            t += Time.deltaTime;
-            float alpha = Mathf.Lerp(1f, 0f, t / duration);
-            color.a = alpha;
-            messageText.color = color;
-            yield return null;
-        }
-
-        messagePanel.SetActive(false);
     }
 
     IEnumerator FadeCanvasGroup(CanvasGroup group, float from, float to, float duration)

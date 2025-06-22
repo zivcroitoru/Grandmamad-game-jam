@@ -32,14 +32,22 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        startTime = Time.time;
         gameOverScreen.SetActive(false);
 
         // Hook into events
         roundTimer.OnTimeOutEvent += () => TriggerGameOver(GameOverCause.Timeout);
         stressManager.OnStressMaxed += () => TriggerGameOver(GameOverCause.Stress);
 
-        // Start background music
+        StartCoroutine(DelayedGameStart());
+    }
+
+    IEnumerator DelayedGameStart()
+    {
+        while (TutorialManager.IsTutorialActive)
+            yield return null;
+
+        // Only runs after tutorial dismissed
+        startTime = Time.time;
         AudioManager.Instance.PlayRoundMusic();
     }
 
@@ -50,17 +58,18 @@ public class GameManager : MonoBehaviour
             QuitGame();
         }
 
-        // Fast forward toggle for debug
-        if (Input.GetKeyDown(KeyCode.F))
+        // 🔒 Prevent restart tap during tutorial
+        if (!TutorialManager.IsTutorialActive && isGameOver)
         {
-            Time.timeScale = (Time.timeScale == 1f) ? 5f : 1f;
-            Debug.Log($"⏩ Fast Forward: {(Time.timeScale > 1f ? "ON" : "OFF")}");
-        }
+            if (Application.isMobilePlatform && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+            {
+                RestartGame();
+            }
 
-        // Restart
-        if (isGameOver && Input.GetKeyDown(KeyCode.R))
-        {
-            RestartGame();
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                RestartGame();
+            }
         }
     }
 
@@ -112,26 +121,19 @@ public class GameManager : MonoBehaviour
         if (isNewRecord)
             styledText += "<size=24><color=#FFD700><b>🏆 New Record!</b></color></size>\n\n";
 
-        styledText += "\n<size=24><color=#FFFFFFAA>Press R to Restart  |  Q to Quit</color></size>";
+        if (Application.isMobilePlatform)
+        {
+            styledText += "\n<size=24><color=#FFFFFFAA>Tap the screen to restart</color></size>";
+        }
+        else
+        {
+            styledText += "\n<size=24><color=#FFFFFFAA>Press R to Restart  |  Q to Quit</color></size>";
+        }
 
         gameOverText.text = styledText;
 
-        StartCoroutine(FadeInGameOverScreen());
-    }
-
-    IEnumerator FadeInGameOverScreen()
-    {
+        // Show game over screen instantly without fade
         gameOverScreen.SetActive(true);
-        gameOverCanvasGroup.alpha = 0f;
-
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.unscaledDeltaTime;
-            gameOverCanvasGroup.alpha = Mathf.Lerp(0f, 1f, t / fadeDuration);
-            yield return null;
-        }
-
         gameOverCanvasGroup.alpha = 1f;
     }
 
