@@ -1,6 +1,6 @@
 # 🧓 Grandmamad
 
-👉 **Play now on Itch.io (WebGL) Mobile/PC **: [https://thefanic.itch.io/grandmamad](https://thefanic.itch.io/grandmamad)
+👉 **Play now on Itch.io (WebGL) Mobile/PC**: [https://thefanic.itch.io/grandmamad](https://thefanic.itch.io/grandmamad)
 
 🎬 Watch gameplay preview:
 
