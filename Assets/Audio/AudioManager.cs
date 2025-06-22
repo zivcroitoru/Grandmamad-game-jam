@@ -62,10 +62,12 @@ void Awake()
             musicSource.Stop();
     }
 
-    public void PlayGameOverSFX()
-    {
-        PlayMusic(gameOverSFX, false); // play using the music source
-    }
+public void PlayGameOverSFX()
+{
+    StopMusic(); // stop round music
+    PlayMusic(gameOverSFX, false); // plays jingle like music
+}
+
 
     public void PlayPickupSFX()
     {

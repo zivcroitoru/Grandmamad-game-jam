@@ -21,14 +21,15 @@ public class RoundTimer : MonoBehaviour
         isPaused = false;
     }
 
-  void Update()
+void Update()
 {
-    if (isPaused || timedOut) return;
+    if (TutorialManager.IsTutorialActive || isPaused || timedOut)
+        return;
 
-    timePassed += Time.deltaTime;
+    timePassed += Time.unscaledDeltaTime;
+
     float timeLeft = Mathf.Max(0f, maxTime - timePassed);
-
-    int seconds = Mathf.FloorToInt(timeLeft % 61f);
+    int seconds = Mathf.FloorToInt(timeLeft);
 
     if (roundTimerText != null)
         roundTimerText.text = $"{seconds:00}";
@@ -39,6 +40,8 @@ public class RoundTimer : MonoBehaviour
         OnTimeOutEvent?.Invoke();
     }
 }
+
+
 
 
     public void ResetTimer(float newMaxTime = 61f)
