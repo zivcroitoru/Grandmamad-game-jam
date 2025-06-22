@@ -33,120 +33,88 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         gameOverScreen.SetActive(false);
-
-        // Hook into events
-        roundTimer.OnTimeOutEvent += () => TriggerGameOver(GameOverCause.Timeout);
-        stressManager.OnStressMaxed += () => TriggerGameOver(GameOverCause.Stress);
-
         StartCoroutine(DelayedGameStart());
+        AudioManager.Instance.PlayRoundMusic();
     }
 
     IEnumerator DelayedGameStart()
     {
-        while (TutorialManager.IsTutorialActive)
-            yield return null;
-
-        // Only runs after tutorial dismissed
+        yield return new WaitUntil(() => !TutorialManager.IsTutorialActive);
         startTime = Time.time;
-        AudioManager.Instance.PlayRoundMusic();
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            QuitGame();
-        }
-
-        // 🔒 Prevent restart tap during tutorial
-        if (!TutorialManager.IsTutorialActive && isGameOver)
-        {
-            if (Application.isMobilePlatform && Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-            {
-                RestartGame();
-            }
-
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                RestartGame();
-            }
-        }
-    }
-
-    public void TriggerGameOver(GameOverCause reason)
+    public void GameOver(GameOverCause cause)
     {
         if (isGameOver) return;
         isGameOver = true;
 
-        Time.timeScale = 0f;
-
-        if (timerUI != null) timerUI.SetActive(false);
-        if (stressUI != null) stressUI.SetActive(false);
-
-        // Stop background music
-        AudioManager.Instance.StopMusic();
-
-        // Play game over SFX
-        AudioManager.Instance.PlaySFX(AudioManager.Instance.gameOverSFX);
-
         float survivalTime = Time.time - startTime;
-        int minutes = Mathf.FloorToInt(survivalTime / 60f);
-        int seconds = Mathf.FloorToInt(survivalTime % 60f);
-
         float bestTime = PlayerPrefs.GetFloat(BestTimeKey, 0f);
-        bool isNewRecord = survivalTime >= bestTime;
 
+        bool isNewRecord = survivalTime > bestTime;
         if (isNewRecord)
         {
             PlayerPrefs.SetFloat(BestTimeKey, survivalTime);
             PlayerPrefs.Save();
         }
 
-        int bestMin = Mathf.FloorToInt(bestTime / 60f);
-        int bestSec = Mathf.FloorToInt(bestTime % 60f);
+        string reasonText = cause == GameOverCause.Stress
+            ? "Granny got too stressed out!"
+            : "Time ran out!";
 
-        string reasonText = reason == GameOverCause.Stress
-            ? "Granny couldn't take the pressure..."
-            : "You're taking too long!";
-
-        string timeText = $"{minutes:00}:{seconds:00}";
-        string bestTimeTextValue = $"Best: {bestMin:00}:{bestSec:00}";
+        string timeText = $"{survivalTime:F1} seconds";
+        string bestTimeTextValue = $"Best Time: {Mathf.Max(survivalTime, bestTime):F1} sec";
 
         string styledText =
-            "<size=125><b>Game Over</b></size>\n\n" +
-            $"<size=24>{reasonText}</size>\n\n" +
-            $"<size=75><b>{timeText}</b></size>\n\n" +
-            $"<size=32>{bestTimeTextValue}</size>\n\n";
+            $"<size=94><b>Game Over</b></size>\n\n" +
+            $"<size=18>{reasonText}</size>\n\n" +
+            $"<size=56><b>{timeText}</b></size>\n\n" +
+            $"<size=24>{bestTimeTextValue}</size>\n\n";
 
         if (isNewRecord)
-            styledText += "<size=24><color=#FFD700><b>🏆 New Record!</b></color></size>\n\n";
+            styledText += "<size=18><color=#FFD700><b>🏆 New Record!</b></color></size>\n\n";
 
-        if (Application.isMobilePlatform)
-        {
-            styledText += "\n<size=24><color=#FFFFFFAA>Tap the screen to restart</color></size>";
-        }
-        else
-        {
-            styledText += "\n<size=24><color=#FFFFFFAA>Press R to Restart  |  Q to Quit</color></size>";
-        }
+        styledText += Application.isMobilePlatform
+            ? "\n<size=18><color=#FFFFFFAA>Tap the screen to restart</color></size>"
+            : "\n<size=18><color=#FFFFFFAA>Press R to Restart  |  Q to Quit</color></size>";
 
         gameOverText.text = styledText;
 
-        // Show game over screen instantly without fade
+        StartCoroutine(FadeInGameOverScreen());
+        AudioManager.Instance.PlaySFX(AudioManager.Instance.gameOverSFX);
+    }
+
+    IEnumerator FadeInGameOverScreen()
+    {
         gameOverScreen.SetActive(true);
+        gameOverCanvasGroup.alpha = 0f;
+
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            gameOverCanvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+            yield return null;
+        }
+
         gameOverCanvasGroup.alpha = 1f;
     }
 
-    public void RestartGame()
+    void Update()
     {
-        TriggerTest.collectedItems.Clear();
-        TriggerTest.usedItems.Clear();
-        Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
+        if (!isGameOver) return;
 
-    public void QuitGame()
-    {
-        Application.Quit();
+        if (Application.isMobilePlatform)
+        {
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        else
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            else if (Input.GetKeyDown(KeyCode.Q))
+                Application.Quit();
+        }
     }
 }
