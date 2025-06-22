@@ -920,7 +920,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8170153791668043265, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
   m_PrefabInstance: {fileID: 115767032}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1157765722}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a47f546fc70ec8428172694e78e4288, type: 3}
@@ -3759,11 +3759,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 416094750476352848}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &789547531 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8170153791668043269, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
-  m_PrefabInstance: {fileID: 1196983287}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &789547532 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8170153791668043268, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
@@ -3774,7 +3769,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8170153791668043265, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
   m_PrefabInstance: {fileID: 1196983287}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 789547531}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a47f546fc70ec8428172694e78e4288, type: 3}
@@ -4007,9 +4002,6 @@ MonoBehaviour:
   fadeDuration: 0.5
   roundTimer: {fileID: 1344491350}
   stressManager: {fileID: 436643167}
-  cameraJoystick: {fileID: 1157765722}
-  moveJoystick: {fileID: 789547531}
-  pickupButton: {fileID: 1378622661}
 --- !u!1 &812140917 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6772058802856018684, guid: 3e9fd7eb307474e4d9e64b140d84547b, type: 3}
@@ -5839,11 +5831,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -1616888318636561661, guid: 3e9fd7eb307474e4d9e64b140d84547b, type: 3}
---- !u!1 &1157765722 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8170153791668043269, guid: 0d230cc8be529a542a08cb878ab14b18, type: 3}
-  m_PrefabInstance: {fileID: 115767032}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1162501028
 GameObject:
   m_ObjectHideFlags: 0
@@ -6831,10 +6818,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialPanel: {fileID: 589542753}
   tutorialText: {fileID: 1903357437}
-  dismissButton: {fileID: 109882404}
   cameraJoystick: {fileID: 8170153793445369651}
   moveJoystick: {fileID: 8170153792364106654}
-  pickupButton: {fileID: 0}
 --- !u!1 &1416348786
 GameObject:
   m_ObjectHideFlags: 0
