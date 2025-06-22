@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -42,11 +43,26 @@ public class TutorialManager : MonoBehaviour
               "<align=center><size=22><color=#EEEEEE>Collect: <b>E key</b></color></size></align>\n\n" +
               "<align=center><size=20><color=#AAAAAA>Click to begin</color></size></align>";
 
-        // Joysticks are not activated here — only previewed in UI
         if (isMobile)
         {
-            if (cameraJoystick != null) cameraJoystick.SetActive(true);
-            if (moveJoystick != null) moveJoystick.SetActive(true);
+            StartCoroutine(ShowJoysticksDelayed());
+        }
+    }
+
+    IEnumerator ShowJoysticksDelayed()
+    {
+        yield return new WaitForEndOfFrame(); // Let canvas layout complete
+
+        if (cameraJoystick != null)
+        {
+            cameraJoystick.SetActive(true);
+            Debug.Log("[TutorialManager] Camera joystick activated.");
+        }
+
+        if (moveJoystick != null)
+        {
+            moveJoystick.SetActive(true);
+            Debug.Log("[TutorialManager] Move joystick activated.");
         }
     }
 
@@ -61,25 +77,22 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    public void DismissTutorial()
-    {
-        if (tutorialDismissed) return;
+public void DismissTutorial()
+{
+    if (tutorialDismissed) return;
 
-        tutorialPanel.SetActive(false);
-        Time.timeScale = 1f;
-        tutorialDismissed = true;
-        IsTutorialActive = false;
+    tutorialPanel.SetActive(false);
+    Time.timeScale = 1f;
+    tutorialDismissed = true;
+    IsTutorialActive = false;
 
-        AudioManager.Instance?.ResumeMusic();
+    AudioManager.Instance?.ResumeMusic();
 
-        PlayerPrefs.SetInt("TutorialShown", 1);
-        PlayerPrefs.Save();
+    // ✅ Start the game now
+    FindObjectOfType<GameStartManager>()?.BeginGame();
 
-        // Activate mobile controls after tutorial dismissed
-        if (isMobile)
-        {
-            if (cameraJoystick != null) cameraJoystick.SetActive(true);
-            if (moveJoystick != null) moveJoystick.SetActive(true);
-        }
-    }
+    PlayerPrefs.SetInt("TutorialShown", 1);
+    PlayerPrefs.Save();
+}
+
 }

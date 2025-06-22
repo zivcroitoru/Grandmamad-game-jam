@@ -13,7 +13,7 @@ public class CameraController : MonoBehaviour
     public float verticalClampMax = 60f;
 
     [Header("Mobile Support")]
-    public FloatingJoystick lookJoystick;   // Right joystick for camera
+public VariableJoystick lookJoystick;
     public bool autoDetectMobile = true;
 
     private float yaw = 0f;

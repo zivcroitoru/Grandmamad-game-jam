@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class MobileInputManager : MonoBehaviour
 {
-    public FloatingJoystick joystick;
+public VariableJoystick joystick;
     private bool pickupPressed;
 
     public void OnPickupPressed() => pickupPressed = true;

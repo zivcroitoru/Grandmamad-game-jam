@@ -13,7 +13,7 @@ public class MamadCutscene : MonoBehaviour
     public StressManager stressManager;
     public CollectibleSpawner spawner;
     public RoundTimer roundTimer;
-
+    public RoundTracker roundTracker;
     public void PlayCutscene(Action onComplete)
     {
         StartCoroutine(CutsceneRoutine(onComplete));
@@ -68,6 +68,7 @@ public class MamadCutscene : MonoBehaviour
 {
     yield return new WaitForSecondsRealtime(0.1f); // short delay for stability
 roundTimer.ResetTimer(60f);
+roundTracker.IncrementRound(); // ✅ Add this
 
 if (roundTimer.roundTimerText != null)
 {

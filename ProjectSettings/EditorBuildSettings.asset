@@ -5,9 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 0
+    path: Assets/Joystick Pack/Examples/Example Scene.unity
+    guid: 414bddd31c5ea4f4c9f5d1452e5bbb41
+  - enabled: 1
+    path: Assets/Scenes/MobileTest.unity
+    guid: 4794f92ae2e3f424f89cd71ee2351782
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 0134bbdc8f0acd143925acd52f09a5d7, type: 2}
     com.unity.localization.settings: {fileID: 11400000, guid: 6fac09f8e1b76034e819e8bfda1f927c, type: 2}

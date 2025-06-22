@@ -76,8 +76,9 @@ private IEnumerator AnimateStressReduction()
     float startStress = stress;
 
     Debug.Log($"Reducing stress by {reduction} from {newItemCount} new items");
+    if (reduction > 3) {
     AudioManager.Instance.PlayHealSFX(); // 🔊 play healing sound
-
+    }
     while (elapsed < duration)
     {
         elapsed += Time.deltaTime;
